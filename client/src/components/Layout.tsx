@@ -16,6 +16,9 @@ function Layout({ children }: LayoutProps) {
             </Link>
             <Flex gap={4}>
               <Link as={RouterLink} to="/register" color="plab.text">
+                회원가입
+              </Link>
+              <Link as={RouterLink} to="/register-product" color="plab.text">
                 판매하기
               </Link>
               <Link as={RouterLink} to="/mypage" color="plab.text">
