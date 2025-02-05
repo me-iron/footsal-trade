@@ -1,7 +1,7 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const { Product } = require('../models/product');
-const upload = require('../middleware/upload');
+const upload = require('../config/cloudinary');
 const router = express.Router();
 
 // 상품 등록
@@ -26,7 +26,7 @@ router.post('/', upload.array('images', 5), async (req, res) => {
       return res.status(400).json({ message: '필수 정보가 누락되었습니다.' });
     }
 
-    // 이미지 파일 경로 저장
+    // 이미지 URL 저장
     const images = req.files ? req.files.map(file => file.path) : [];
 
     // 상품 생성
