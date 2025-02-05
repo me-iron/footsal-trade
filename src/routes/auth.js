@@ -2,10 +2,9 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
-const { createUser, findUserByPhone } = require('../models/user');
+const User = require('../models/user');
 
 const router = express.Router();
-const JWT_SECRET = 'your-secret-key'; // 실제 운영에서는 환경변수로 관리
 
 // 휴대전화번호 유효성 검사
 const validatePhoneNumber = (phoneNumber) => {
@@ -32,7 +31,7 @@ router.post('/register', async (req, res) => {
     }
 
     // 기존 사용자 확인
-    const existingUser = await findUserByPhone(phoneNumber);
+    const existingUser = await User.findOne({ phoneNumber });
     if (existingUser) {
       return res.status(400).json({ message: '이미 등록된 휴대전화번호입니다.' });
     }
@@ -41,15 +40,15 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // 사용자 생성
-    const user = {
+    const user = new User({
       id: uuidv4(),
       phoneNumber,
       password: hashedPassword
-    };
-    await createUser(user);
+    });
+    await user.save();
 
     // JWT 토큰 생성
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     res.status(201).json({ token, userId: user.id });
   } catch (error) {
@@ -72,7 +71,7 @@ router.post('/login', async (req, res) => {
     }
 
     // 사용자 찾기
-    const user = await findUserByPhone(phoneNumber);
+    const user = await User.findOne({ phoneNumber });
     if (!user) {
       return res.status(401).json({ message: '등록되지 않은 사용자입니다.' });
     }
@@ -84,7 +83,7 @@ router.post('/login', async (req, res) => {
     }
 
     // JWT 토큰 생성
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     res.json({ token, userId: user.id });
   } catch (error) {

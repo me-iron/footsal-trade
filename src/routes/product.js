@@ -1,6 +1,6 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
-const { createProduct, createMatch, getProduct, getAllProducts } = require('../models/product');
+const { Product } = require('../models/product');
 const upload = require('../middleware/upload');
 const router = express.Router();
 
@@ -30,9 +30,7 @@ router.post('/', upload.array('images', 5), async (req, res) => {
     const images = req.files ? req.files.map(file => file.path) : [];
 
     // 상품 생성
-    const productId = uuidv4();
-    const product = {
-      id: productId,
+    const product = new Product({
       userId,
       brand,
       model,
@@ -40,26 +38,17 @@ router.post('/', upload.array('images', 5), async (req, res) => {
       price: parseInt(price),
       condition,
       description,
-      images
-    };
+      images,
+      match: {
+        plabUrl,
+        location,
+        address,
+        matchDatetime: new Date(matchDatetime)
+      }
+    });
 
-    await createProduct(product);
-
-    // 매치 정보 생성
-    const match = {
-      id: uuidv4(),
-      productId,
-      plabUrl,
-      location,
-      address,
-      matchDatetime: new Date(matchDatetime)
-    };
-
-    await createMatch(match);
-
-    // 생성된 상품 정보 조회
-    const createdProduct = await getProduct(productId);
-    res.status(201).json(createdProduct);
+    await product.save();
+    res.status(201).json(product);
   } catch (error) {
     console.error('Product creation error:', error);
     res.status(500).json({ message: '상품 등록 중 오류가 발생했습니다.' });
@@ -69,7 +58,7 @@ router.post('/', upload.array('images', 5), async (req, res) => {
 // 모든 상품 조회
 router.get('/', async (req, res) => {
   try {
-    const products = await getAllProducts();
+    const products = await Product.find().sort({ createdAt: -1 });
     res.json(products);
   } catch (error) {
     console.error('Products fetch error:', error);
@@ -80,7 +69,7 @@ router.get('/', async (req, res) => {
 // 특정 상품 조회
 router.get('/:id', async (req, res) => {
   try {
-    const product = await getProduct(req.params.id);
+    const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ message: '상품을 찾을 수 없습니다.' });
     }
