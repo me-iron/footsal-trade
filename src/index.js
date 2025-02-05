@@ -1,11 +1,14 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
+const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/product');
 const tryRequestRoutes = require('./routes/try-request');
 
 const app = express();
+
+// MongoDB 연결
+connectDB();
 
 // CORS 설정
 app.use(cors({
@@ -33,7 +36,7 @@ app.get('/', (req, res) => {
 // 에러 핸들링 미들웨어
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ message: 'Something broke!' });
+  res.status(500).json({ message: '서버 오류가 발생했습니다.' });
 });
 
 // Vercel의 서버리스 환경을 위한 export
