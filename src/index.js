@@ -30,5 +30,16 @@ app.get('/', (req, res) => {
   res.json({ message: 'Footsal Trade API' });
 });
 
+// 에러 핸들링 미들웨어
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something broke!' });
+});
+
 // Vercel의 서버리스 환경을 위한 export
 module.exports = app;
+
+// 서버리스 함수 핸들러
+module.exports.handler = async (req, res) => {
+  return app(req, res);
+};
