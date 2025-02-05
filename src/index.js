@@ -6,7 +6,6 @@ const productRoutes = require('./routes/product');
 const tryRequestRoutes = require('./routes/try-request');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // CORS 설정
 app.use(cors({
@@ -31,7 +30,5 @@ app.get('/', (req, res) => {
   res.json({ message: 'Footsal Trade API' });
 });
 
-// 서버 시작
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Vercel의 서버리스 환경을 위한 export
+module.exports = app;
