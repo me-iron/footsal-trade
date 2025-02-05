@@ -18,7 +18,7 @@ app.use(cors({
 app.use(express.json());
 
 // 정적 파일 제공
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // 라우터
 app.use('/api/auth', authRoutes);
@@ -37,9 +37,6 @@ app.use((err, req, res, next) => {
 });
 
 // Vercel의 서버리스 환경을 위한 export
-module.exports = app;
-
-// 서버리스 함수 핸들러
-module.exports.handler = async (req, res) => {
-  return app(req, res);
+module.exports = (req, res) => {
+  app(req, res);
 };
