@@ -8,8 +8,14 @@ const tryRequestRoutes = require('./routes/try-request');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// CORS 설정
+app.use(cors({
+  origin: ['https://new-footsal-trade.vercel.app', 'http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 // 미들웨어
-app.use(cors());
 app.use(express.json());
 
 // 정적 파일 제공
